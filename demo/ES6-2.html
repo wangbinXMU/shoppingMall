@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6-2</title>
+</head>
+<body>
+   <h2>ES6演示</h2>
+   <script>
+     //Rest参数 (动态参数)
+     function sum(...m){
+       let total=0;
+       for (let i of m){
+         total+=i;
+       }
+       console.log(total);
+     }
+     sum(1,2,3,4); // 10
+     //数组的扩展
+     console.log([4,8]);//[4,8]
+     console.log(...[4,8]); //4,8
+     //函数的扩展
+     let arr1=[1,2]; let arr2 = [3,4];
+     // ES5
+     console.log(arr1.concat(arr2)); //[1, 2, 3, 4]
+     //ES6
+     console.log([...arr1,...arr2]); //[1, 2, 3, 4]
+     //Rest参数+解构
+     let  [x, ...y]=[1,2,3,4];
+     console.log(y);    // [2, 3, 4]
+     let c=[..."ES6"];
+     console.log(c);  //["E", "S", "6"]
+   </script>
+</body>
+</html>

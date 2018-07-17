@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ES6</title>
+</head>
+<body>
+      <div id="log">
+        <h2>ES6</h2>
+      </div>
+      <script>
+          // function test(){
+          //   var a=1;
+          // }
+          // console.log(a); //a is not defined
+          // {
+          //   var b=2; //具有函数级作用域
+          //   let c=3;  //具有块级作用域
+          //   const d=4; //具有块级作用域
+          // }
+          // console.log(b); // 2
+          // console.log(c); //c is not defined
+          // console.log(d); //d is not defined
+        // let a =1;
+        // console.log(a);
+        // function sum(num1=1,num2=3){
+        //   return num1+num2;
+        // }
+        // console.log(sum());
+          //结构数组
+        const people=[
+          {name:"Tom",age:21},
+          {name:"Jack", age:22},
+          {name:"Jerry",age:23},
+        ];
+        const [{age}]=people;
+        console.log(age);//21
+          //结构对象
+        const arr={
+          name:"xiamen",
+          format:"png",
+          size:"100*100",
+        };
+        //结构的名称要与对象或数组中对应
+        const {name,format,size}=arr;
+        console.log(`${name}.${format}=${size}`); //xiamen.png=100*100
+          //字符串结构
+        const str="Vue";
+        const [x,y,z]=str;
+        console.log( `${x}  ${y} ${z}` );// V u e
+
+      </script>
+</body>
+</html>

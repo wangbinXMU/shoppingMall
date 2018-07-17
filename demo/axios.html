@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Axios</title>
+  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="../node_modules/vue/dist/vue.js"></script>
+  <script src="../node_modules/axios/dist/axios.js"></script>
+</head>
+<body>
+<div id="app">
+  <h1>Axios</h1>
+  <!--<a href="javascript:;" class="btn btn-primary" @click="get">GET</a>-->
+  <!--<a href="javascript:;" class="btn btn-primary" @click="post">POST</a>-->
+  <a href="javascript:;" class="btn btn-primary" @click="http">HTTP</a>
+  <div><span>{{ msg }}</span></div>
+</div>
+<script>
+  new Vue({
+    el:'#app',
+    data:{
+      msg:'',
+    },
+    //axios插件进行请求时的全局拦截
+    mounted:function(){
+      axios.interceptors.request.use(config=>{
+        console.log("返回请求体之前进行的操作");
+        return config;
+      });
+        axios.interceptors.response.use(response=>{
+           console.log("返回response前进行的操作");
+          return response;
+        })
+    },
+
+    methods:{
+      http:function(){
+        axios({
+          url:"../package.json",
+          method:"GET",
+          //POST发送的参数在data中定义
+          data:{
+            userId:888,
+          },
+          //GET发送的参数在params中定义
+          params:{
+            userId:889,
+          },
+          headers:{
+            token:"http-test",
+          }
+        }).then(res=>{
+            this.msg=res.data;
+        })
+      }
+    },
+  })
+</script>
+</body>
+</html>

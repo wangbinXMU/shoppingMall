@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Vue-resource</title>
+  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="../node_modules/vue/dist/vue.js"></script>
+  <script src="../node_modules/vue-resource/dist/vue-resource.js"></script>
+</head>
+<body>
+  <div id="app">
+      <h1>vue-resource</h1>
+    <a href="javascript:;" class="btn btn-primary" @click="get">GET</a>
+    <a href="javascript:;" class="btn btn-primary" @click="post">POST</a>
+    <a href="javascript:;" class="btn btn-primary" @click="jsonp">JSONP</a>
+    <a href="javascript:;" class="btn btn-primary" @click="http">HTTP</a>
+
+    <div><span>{{ msg }}</span></div>
+  </div>
+<script>
+  new Vue({
+      el:'#app',
+      data:{
+        msg:'',
+      },
+    //全局地址配置，将请求地址的公共部分抽离出来
+    http:{
+       root:"http://localhost:63342/shoppingMall/",
+    },
+    mounted:function(){
+        Vue.http.interceptors.push((request,next)=>{
+          console.log("返回请求体前进行的操作");
+          next(response=>{
+            console.log("返回响应体前进行的操作");
+            return response;
+          })
+        })
+    },
+    methods:{
+        get:function(){
+            this.$http.get("package.json",{
+              params:{
+                userId:101, //传递的参数
+              },
+              headers:{
+                token:'abcd' //在请求头部中注入字段
+              }
+            }).then(res=>{
+              console.log('成功的回调')
+              this.msg=res.data;
+            },err=>{
+              console.log('错误的回调')
+            })
+        },
+      post:function(){
+          this.$http.post('package.json',{userId:102},{headers:{access_token:'abc'}})
+            .then(res=>{
+                this.msg=res.data;
+            },err=>{
+                this.msg=err;
+            })
+      },
+      jsonp:function(){
+          //这是一个需要跨域请求的接口，get请求会报错
+          this.$http.jsonp('http://www.imooc.com/course/AjaxCourseMembers?ids=796')
+            .then(res=>{
+              this.msg=res.data;
+            })
+      },
+      http:function(){
+          this.$http({
+                url:'package.json',
+                params:{
+                  userId:"103",
+                },
+            headers:{
+                  token:"eee"
+            },
+            timeout:5,
+            //请求前的操作
+            before(){
+                  console.log("before init")
+            }
+          }).then(res=>{
+                this.msg=res.data;
+          })
+      }
+
+    },
+    components:{
+
+    }
+
+
+  })
+</script>
+</body>
+</html>

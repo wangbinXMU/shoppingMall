@@ -1,0 +1,10 @@
+#端口
+port=27017
+#db存放的目录
+dbpath=/root/wangbin/shoppingmall/db/data
+#后台启动需要配置日志输出
+logpath=/root/wangbin/shoppingmall/db/logs
+#日志模式
+logappend=true
+#设置成后台启动
+fork=true 
