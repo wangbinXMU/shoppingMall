@@ -60,7 +60,7 @@
             </div>
             <ul class="cart-item-list">
                 <!--购物车商品展示区-->
-              <li v-for="item in cartList">
+              <li v-for="(item,index) in cartList" :key='index'>
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
                       <!--checked为1时，购物车的该商品默认选中-->
@@ -189,20 +189,26 @@
             //通过checked判断选中的数量
             checkedCount(){
                 var i = 0;
-                this.cartList.forEach((item)=>{
+                if(this.cartList.length>0){
+                   this.cartList.forEach((item)=>{
                     if(item.checked=='1')i++;
-                });
-                return i;
+                  });
+                  return i;
+                }else {
+                  return;
+                }
             },
             // 总付款
             totalPrice(){
                 var money = 0;
-                this.cartList.forEach((item)=>{
-                    if(item.checked=='1'){
-                        money += parseFloat(item.salePrice)*parseInt(item.productNum);
-                    }
-                });
-                return money;
+                  if(this.cartList.length>0){
+                     this.cartList.forEach((item)=>{
+                      if(item.checked=='1'){
+                          money += parseFloat(item.salePrice)*parseInt(item.productNum);
+                      }
+                    });
+                    return money;
+                  }
             }
         },
         components:{
@@ -278,19 +284,21 @@
             //点击 select all
             toggleCheckAll(){
                let flag = !this.checkAllFlag;
-                this.cartList.forEach((item)=>{
+                if(this.cartList.length>0){
+                  this.cartList.forEach((item)=>{
                   // 点击全选时，将购物车中的所有商品处于选中状态
                     item.checked=flag?"1":"0";
-                });
-                // 再更新数据库
-                axios.post("/users/editCheckAll",{
-                  checkAll:flag,
-                }).then((response)=>{
-                    let res = response.data;
-                    if(res.status=='0'){
-                        console.log("数据库checked更新成功！！");
-                    }
-                })
+                  });
+                  // 再更新数据库
+                  axios.post("/users/editCheckAll",{
+                    checkAll:flag,
+                  }).then((response)=>{
+                      let res = response.data;
+                      if(res.status=='0'){
+                          console.log("数据库checked更新成功！！");
+                      }
+                  })
+                }
             },
             //选中的商品数量>0才能点击“结算”跳转到地址页面
             checkOut(){

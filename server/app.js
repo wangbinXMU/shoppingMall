@@ -40,7 +40,7 @@ app.use(function(req,res,next){
     }else{
     //如果是点击“加入购物车”则进行拦截如,若是登录,退出,查询请求则不拦截，但是前端发送的查询请求是带参数的，且参数是动态的
     //故这里放行需要特殊处理，例如：请求时这里的req.originalUrl是/goods?page=1&pageSize=8&sort=1&busy=true&priceLevel=all
-        if(req.originalUrl=="/users/login"||req.originalUrl=="/users/logout"||req.path=="/goods/list"){
+        if(req.originalUrl=="/users/register" || req.originalUrl=="/users/login"||req.originalUrl=="/users/logout"||req.path=="/goods/list"){
             next();
         }else{
             res.json({

@@ -61,7 +61,11 @@
                         <div class="addr-list">
                             <ul>
                                 <!--addressListFilter  是计算属性，用来储存要默认展示的地址，不展示的将隐藏到more里面; check为选中的地址的样式,点击实现选中-->
-                                <li v-for="(item,index) in addressListFilter" :class="{'check':checkIndex==index}" @click="checkIndex=index;selectedAddrId=item.addressId">
+                                <li v-for="(item,index) in addressListFilter" 
+                                :class="{'check':checkIndex==index}" 
+                                @click="checkIndex=index;selectedAddrId=item.addressId"
+                                :key='index'
+                                >
                                     <dl>
                                         <dt>{{item.userName}}</dt>
                                         <dd class="address">{{item.streetName}}</dd>
@@ -77,14 +81,15 @@
                                     <!--设置默认地址-->
                                     <div class="addr-opration addr-set-default">
                                         <!--点击“设为默认地址”会将数据库中该地址的isDefault字段设置true-->
-                                        <a href="javascript:;" class="addr-set-default-btn" v-if="!item.isDefault" @click="setDefault(item.addressId)"><i>设置为默认地址</i></a>
+                                        <a href="javascript:;" class="addr-set-default-btn" 
+                                        v-if="!item.isDefault" @click="setDefault(item.addressId)"><i>设置为默认地址</i></a>
                                     </div>
                                     <!--item.isDefault 判断是否为默认地址-->
                                     <div class="addr-opration addr-default" v-if="item.isDefault">默认地址</div>
                                 </li>
                                 <li class="addr-new">
                                     <!--新增地址-->
-                                    <div class="add-new-inner" @click='addNewAddress()'>
+                                    <div class="add-new-inner" @click='addNewAddressModal()'>
                                         <i class="icon-add">
                                             <svg class="icon icon-add"><use xlink:href="#icon-add"></use></svg>
                                         </i>
@@ -111,7 +116,8 @@
                         <h2><span>Shipping method</span></h2>
                     </div>
                     <div class="lemall-msg-info hidden">
-                        <span>The region you selected is not within our delivery area. Please select another shipping address within our delivery areas.</span>
+                        <span>The region you selected is not within our delivery area. 
+                            Please select another shipping address within our delivery areas.</span>
                     </div>
                     <div class="shipping-method-wrap">
                         <div class="shipping-method">
@@ -128,7 +134,8 @@
                     </div>
                     <div class="next-btn-wrap">
                     <!--orderConfirm为命名路由-->
-                        <router-link class="btn btn--m btn--red" :to="{path:'orderConfirm',query:{addressId:selectedAddrId}}">Next</router-link>
+                        <router-link class="btn btn--m btn--red" 
+                        :to="{path:'orderConfirm',query:{addressId:selectedAddrId}}">Next</router-link>
                     </div>
                 </div>
             </div>
@@ -152,120 +159,191 @@
                 <a href="javascript:;"  class="btn btn--m" @click="isMdShow2=false">好的~</a>
             </div>
         </modal>
+         <!--地址列表只剩一条不能再删除的提示-->
+        <modal :mdShow="isMdShow3" @close="isMdShow3=false" class='addAddressBtns'>
+            <p slot="message">
+                姓名 <input type="text" v-model='userName'>
+                地址 <input type="text" v-model='streetName'>
+                联系方式(请输入11位手机号)  <input type="text" v-model='tel' maxLength='11'>
+                邮编(请输入6位邮编)  <input type="text" v-model='postCode' maxLength='6'> 
+                <span class='errTipStyle' v-show=errTip>亲，请按要求输入字段哦~</span>      
+            </p>
+            <div slot="btnGroup" class='btnGroup'>
+                <a href="javascript:;"  class="btn btn--m addBtn" @click='addNewAddress()'>添加</a>
+                <a href="javascript:;"  class="btn btn--m" @click="isMdShow3=false">取消</a>
+            </div>
+        </modal>
         <nav-footer></nav-footer>
     </div>
 </template>
 <style scoped>
-
+.errTipStyle {
+  color: red;
+}
+.addAddressBtns input {
+  display: block;
+  width: 80%;
+  margin: 5px auto;
+}
+.addAddressBtns input:hover {
+  transform: scaleX(1.1);
+  transition:0.3s ease-in;
+  border-color:#d1434a;
+}
+.btnGroup{
+    display:flex !important;
+    width:100% !important;
+    padding-bottom:10px;
+}
+.btnGroup .addBtn{
+    border:1px solid #d1434a !important;
+}
+.btngroup .btn{
+    flex:1 !important;
+    margin:5px !important;
+} 
 </style>
 <script>
-    import NavHeader from './../components/NavHeader'
-    import NavFooter from './../components/NavFooter'
-    import NavBread from './../components/NavBread'
-    import Modal from './../components/Modal'
-    //格式化金额，在此处引入只在当前页面生效，currency.js插件实际上导出的是函数，故要用{}，默认保留两位小数
-    //要想进行全局生效，需要在main.js 中引入
-    import {currency} from './../util/currency'
-    import axios from 'axios'
-    export default {
-        data() {
-            return {
-                //默认显示的地址条数
-                limit:2,
-                //地址列表
-                addressList:[],
-               //默认选中第一个地址
-                checkIndex:0,
-                selectedAddrId:"",
-                isMdShow:false,
-                addressId:"",
-                isMdShow2:false,
-
-            }
-        },
-        computed:{
-            //动态控制addressListFilter
-            addressListFilter(){
-                //截取地址数组
-                return this.addressList.slice(0,this.limit);
-            }
-        },
-        components:{
-            NavHeader,
-            NavFooter,
-            NavBread,
-            Modal
-        },
-        mounted(){
-            //刷新时渲染地址列表
-            this.init();
-        },
-        methods:{
-            // 新增地址
-            // addNewAddress(){
-
-            // },
-            //获取addressList
-            init(){
-                axios.get("/users/addressList").then(response=>{
-                    let res=response.data;
-                    this.addressList=res.result;
-                    // 默认选中第一个地址 
-                    this.selectedAddrId = this.addressList[0].addressId;
-                })
-            },
-            expand(){
-                //点击“more”后改变limit,从而显示所有
-                if(this.limit==2){
-                    this.limit=this.addressList.length;
-                }else{
-                    this.limit=2;
-                }
-            },
-            //设置默认地址
-            setDefault(addressId){
-                axios.post("/users/setDefault",{
-                    addressId:addressId,
-                }).then((response)=>{
-                    let res=response.data;
-                    if(res.status=="0"){
-                        console.log("set default!");
-                        this.init();
-                    }
-                })
-            },
-            closeModal(){
-                this.isMdShow=false;
-            },
-            //点击删除（垃圾筐标识）
-            delAddressConfirm(addressId){
-                //如果只剩一条地址了，则弹出“不能再删除 ”提示
-                if(this.addressList.length>1){
-                    this.isMdShow=true;
-                    this.addressId=addressId;
-                }else{
-                    this.isMdShow2=true;
-                }
-
-            },
-            //点击“确认” 删除
-            delAddress(){
-                //删除数据库对应地址的接口
-                axios.post("/users/delAddress",{
-                    addressId:this.addressId,
-                }).then(response=>{
-                    //data是插件内部封装的
-                    let res=response.data;
-                    if(res.status=="0"){
-                        console.log("delete address successfully!");
-                        this.isMdShow=false;//删除完关闭
-                        //重新渲染一下地址列表
-                        this.init();
-                    }
-                });
-
-            },
-        }
+import NavHeader from "./../components/NavHeader";
+import NavFooter from "./../components/NavFooter";
+import NavBread from "./../components/NavBread";
+import Modal from "./../components/Modal";
+//格式化金额，在此处引入只在当前页面生效，currency.js插件实际上导出的是函数，故要用{}，默认保留两位小数
+//要想进行全局生效，需要在main.js 中引入
+import { currency } from "./../util/currency";
+import axios from "axios";
+export default {
+  data() {
+    return {
+      //默认显示的地址条数
+      limit: 2,
+      //地址列表
+      addressList: [],
+      //默认选中第一个地址
+      checkIndex: 0,
+      selectedAddrId: "",
+      isMdShow: false,
+      addressId: "",
+      isMdShow2: false,
+      isMdShow3: false,
+      userName: "",
+      streetName: "",
+      tel: "",
+      postCode: "",
+      errTip:false
+    };
+  },
+  computed: {
+    //动态控制addressListFilter
+    addressListFilter() {
+      //截取地址数组
+      return this.addressList.slice(0, this.limit);
     }
+  },
+  components: {
+    NavHeader,
+    NavFooter,
+    NavBread,
+    Modal
+  },
+  mounted() {
+    //刷新时渲染地址列表
+    this.init();
+  },
+  methods: {
+    // 新增地址
+    addNewAddressModal() {
+      this.isMdShow3 = true;
+    },
+    addNewAddress() {
+      let bol1 = /^[\d]{11}$/.test(this.tel);
+      let bol2 = /^[\d]{6}$/.test(this.postCode);
+      let matchResult = bol1 && bol2;
+      if (matchResult) {
+          axios.post('/users/addAddress',{
+                userName:this.userName,
+                streetName:this.streetName,
+                tel:parseInt(this.tel),
+                postCode:parseInt(this.postCode),
+          })
+          .then(res=>{
+              if(res.data.status === '0'){
+                  this.isMdShow3 = false;
+                  this.init();
+                  alert('添加成功~');
+              }
+          })
+      } else {
+          this.errTip = true;
+      }
+    },
+    //获取addressList
+    init() {
+      axios.get("/users/addressList").then(response => {
+        let res = response.data;
+        if(res.result.length>0){
+            this.addressList = res.result;
+        }
+        // 默认选中第一个地址
+        if(this.addressList.length>0){
+            this.selectedAddrId = this.addressList[0].addressId;
+        }
+      });
+    },
+    expand() {
+      //点击“more”后改变limit,从而显示所有
+      if (this.limit == 2) {
+        this.limit = this.addressList.length;
+      } else {
+        this.limit = 2;
+      }
+    },
+    //设置默认地址
+    setDefault(addressId) {
+      axios
+        .post("/users/setDefault", {
+          addressId: addressId
+        })
+        .then(response => {
+          let res = response.data;
+          if (res.status == "0") {
+            console.log("set default!");
+            this.init();
+          }
+        });
+    },
+    closeModal() {
+      this.isMdShow = false;
+    },
+    //点击删除（垃圾筐标识）
+    delAddressConfirm(addressId) {
+      //如果只剩一条地址了，则弹出“不能再删除 ”提示
+      if (this.addressList.length > 1) {
+        this.isMdShow = true;
+        this.addressId = addressId;
+      } else {
+        this.isMdShow2 = true;
+      }
+    },
+    //点击“确认” 删除
+    delAddress() {
+      //删除数据库对应地址的接口
+      axios
+        .post("/users/delAddress", {
+          addressId: this.addressId
+        })
+        .then(response => {
+          //data是插件内部封装的
+          let res = response.data;
+          if (res.status == "0") {
+            console.log("delete address successfully!");
+            this.isMdShow = false; //删除完关闭
+            //重新渲染一下地址列表
+            this.init();
+          }
+        });
+    }
+  }
+};
 </script>
 

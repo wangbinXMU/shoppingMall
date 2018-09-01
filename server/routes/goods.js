@@ -5,7 +5,7 @@ var mongoose = require("mongoose");
 //models下的goods.js 发布的Goods模型
 var Goods = require('../models/goods');
 //连接mongoDB数据库
-mongoose.connect('mongodb://127.0.0.1:27017/db_demo');
+mongoose.connect('mongodb://127.0.0.1:27018/db_demo');
 //监听连接成功的状态
 mongoose.connection.on("connected",function(){
     console.log("MongoDB connected success");

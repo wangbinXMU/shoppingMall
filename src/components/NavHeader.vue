@@ -52,18 +52,54 @@
                             <li class="regi_form_input">
                                 <i class="icon IconPeople"></i>
                                 <!--用户名输入框-->
-                                <input type="text" tabindex="1" name="loginname" v-model="userName"  class="regi_login_input"  placeholder="UserName" autofocus="autofocus"/>
+                                <input type="text" tabindex="1" name="loginname" v-model="userName"  class="regi_login_input"  
+                                placeholder="UserName" autofocus="autofocus"/>
                             </li>
                             <li class="regi_form_input noMargin">
                                 <i class="icon IconPwd"></i>
                                 <!--密码输入框-->
                                 <!--enter键弹起执行login方法-->
-                                <input @keyup.enter="login" type="password" tabindex="2" name="password" v-model="userPwd" class="regi_login_input" placeholder="PassWord" />
+                                <input @keyup.enter="login" type="password" tabindex="2" name="password" v-model="userPwd" 
+                                class="regi_login_input" placeholder="PassWord" />
                             </li>
                         </ul>
                     </div>
                     <div class="login-wrap">
                         <a href="javascript:;" class="btn-login" @click="login">登  录</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!--注册模态窗,moginModalFlag控制模态框的显示-->
+        <div class="md-modal modal-msg md-modal-transition" :class="{'md-show':registerModalFlag}">
+            <div class="md-modal-inner">
+                <div class="md-top">
+                    <div class="md-title" style="margin:0 auto">Register</div>
+                    <button class="md-close" @click="registerModalFlag=false">Close</button>
+                </div>
+                <div class="md-content">
+                    <div class="confirm-tips">
+                        <div class="error-wrap">
+                            <span class="error error-show" v-show="errorTip">用户名或密码错误</span>
+                        </div>
+                        <ul>
+                            <li class="regi_form_input">
+                                <i class="icon IconPeople"></i>
+                                <!--用户名输入框-->
+                                <input type="text" tabindex="1" name="loginname" v-model="registerName"  class="regi_login_input"  
+                                placeholder="Name" autofocus="autofocus"/>
+                            </li>
+                            <li class="regi_form_input noMargin">
+                                <i class="icon IconPwd"></i>
+                                <!--密码输入框-->
+                                <!--enter键弹起执行login方法-->
+                                <input type="password" tabindex="2" name="password" v-model="registerPwd" 
+                                class="regi_login_input" placeholder="PassWord" />
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="login-wrap">
+                        <a href="javascript:;" class="btn-login" @click="register()">注 册</a>
                     </div>
                 </div>
             </div>
@@ -84,7 +120,10 @@ export default {
       userName: "",
       userPwd: "",
       errorTip: false,
-      loginModalFlag: false
+      loginModalFlag: false,
+      registerModalFlag:false,
+      registerName:'',
+      registerPwd:'',
     };
   },
   computed: {
@@ -117,6 +156,18 @@ export default {
     this.getCartCount();
   },
   methods: {
+    register(){
+      axios.post('/users/register',{
+        userName:this.registerName,
+        userPwd:this.registerPwd,
+      })
+      .then(res=>{
+        if(res.data.status==='0'){
+          this.registerModalFlag = false;
+          alert('注册成功~')
+        }
+      })
+    },
     //刷新页面就会重新请求，后端重新获取cookie,再将username传给nickname，即可做到登录保持
     checkLogin() {
       axios.get("/users/checkLogin").then(response => {
@@ -161,6 +212,7 @@ export default {
           //退出则清空nickName
           this.$store.commit("updateUserInfo", "");
           this.getCartCount();
+          this.$router.push('/');
         }
       });
     },

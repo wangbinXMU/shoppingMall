@@ -15,7 +15,44 @@ router.get('/', function (req, res, next) {
         });
     }
 });
-
+/*------------注册接口----------*/
+//前端设置了访问地址为/users/register,故这里也要指定对应的路由
+router.post('/register', function (req, res, next) {
+    let param = {
+        userName: req.body.userName,
+        userPwd: req.body.userPwd,
+    };
+    let insertPara = Object.assign(param,{userId:new Date().getTime()});
+    let modelU = new User(insertPara)
+    User.find(param, function (err, doc) {
+        if (doc) {
+            // 向集合中新增文档
+           modelU.save((err,doc1)=>{
+               if(err){
+                   res.json({
+                       status:'1',
+                       msg:err,
+                       result:''
+                   })
+               } else {
+                    res.json({
+                        status:'0',
+                        msg:'用户信息注册成功！',
+                        result:doc1
+                    })
+               }
+           });
+        } else {
+            if (doc) {
+               res.json({
+                   status:'1',
+                   msg:'用户名已存在~',
+                   result:''
+               })
+            } 
+        }
+    })
+});
 /*------------登陆接口----------*/
 //前端设置了访问地址为/users/login,故这里也要指定对应的路由
 router.post('/login', function (req, res, next) {
@@ -312,6 +349,45 @@ router.post("/setDefault", function (req, res, next) {
         });
     }
 });
+/*--------增加地址 接口------*/
+router.post('/addAddress',function(req,res,next){
+    let userId = req.cookies.userId;
+    let addressInfo = {
+        addressId:new Date().getTime(),
+        userName:req.body.userName,
+        streetName:req.body.streetName,
+        tel:req.body.tel,
+        postCode:req.body.postCode,
+        isDefault:false
+    }
+    User.findOne({userId:userId},(err,doc)=>{
+        if(err){
+            res.json({
+                status:'1',
+                msg:err,
+                result:''
+            })
+        } 
+        else{
+            doc.addressList.push(addressInfo);
+            doc.save((err1,doc1)=>{
+                if(err){
+                    res.json({
+                        status:'1',
+                        msg:err.message,
+                        result:''
+                    })
+                } else{
+                    res.json({
+                        status:'0',
+                        msg:'新地址添加成功！',
+                        result:doc1.addressList
+                    })
+                }
+            })
+        }
+    }) 
+})
 /*--------删除地址 接口------*/
 router.post("/delAddress", function (req, res, next) {
     var userId = req.cookies.userId,
