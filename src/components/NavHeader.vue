@@ -105,7 +105,7 @@
             </div>
         </div>
         <!--遮罩,loginModalFlag控制显示，点击模块框则登录框消失-->
-        <div class="md-overlay"  v-if="loginModalFlag" @click="loginModalFlag=false"></div>
+        <div class="md-overlay"  v-if="loginModalFlag || registerModalFlag " @click="maskHandle()"></div>
     </header>
 </template>
 <style>
@@ -156,6 +156,11 @@ export default {
     this.getCartCount();
   },
   methods: {
+    //点击遮罩
+    maskHandle(){
+        this.loginModalFlag=false;
+        this.registerModalFlag=false;
+    },
     register(){
       axios.post('/users/register',{
         userName:this.registerName,
