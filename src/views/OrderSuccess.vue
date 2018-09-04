@@ -75,6 +75,7 @@
                         //#前，？后面的非哈希值参数
                             this.orderId=res.result.orderId;
                             this.orderTotal=res.result.orderTotal;
+                            // 支付成功生成订单并且删除购物车中已支付的商品
                     }
                 })
             }

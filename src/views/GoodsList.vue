@@ -34,7 +34,7 @@
                                 <li v-for="(item,index) in goodsList" :key='index'>
                                     <div class="pic">
                                         <!--图片路径的拼接-->
-                                        <a href="#"><img  v-lazy=" '/static/' +item.productImage"  alt=""></a>
+                                        <a href="javascript:;"><img  v-lazy=" '/static/' +item.productImage"  :alt="item.productName"></a>
                                     </div>
                                     <div class="main">
                                         <div class="name">{{ item.productName }}</div>
